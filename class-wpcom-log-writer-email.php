@@ -1,6 +1,12 @@
 <?php
 class WPCOM_Log_Writer_Email extends WPCOM_Log_Writer_Abstract {
 	/**
+	 * Override the default cache key
+	 * @var string
+	 */
+	protected $_cache_key = 'email';
+	
+	/**
 	 * An array of e-mail addresses to send the logs to.
 	 * @var array
 	 */

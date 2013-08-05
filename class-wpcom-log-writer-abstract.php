@@ -3,7 +3,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 
 	const CACHE_GROUP = 'wpcom-log';
 	
-	protected $_cache_key = 'email';
+	protected $_cache_key = 'default';
 	
 	protected $_default_log_data = array(
 		'last_run' => 0,
