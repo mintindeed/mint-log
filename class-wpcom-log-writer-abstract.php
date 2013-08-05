@@ -64,25 +64,25 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 	}
 	
 	protected function _format_messages( $messages, $log ) {
-		$content = "Timestamp\tPriority\tMessage" . PHP_EOL;
+		$formatted_messages = '';
 
 		foreach ( $log as $timestamp => $message_keys ) {
 			$timestamp = (float) $timestamp;
 			
 			foreach ( $message_keys as $message_key ) {
 				$message = $messages[ (string) $message_key ];
-				$content .= date( 'c', $timestamp ) . "\t";
-				$content .= $this->get_priority_string( $message['priority'] ) . "\t";
-				$content .= $message['message'] . "\t";
+				$formatted_messages .= date( 'c', $timestamp ) . "\t";
+				$formatted_messages .= $this->get_priority_string( $message['priority'] ) . "\t";
+				$formatted_messages .= $message['message'] . "\t";
 				if ( $message['count'] > 1 ) {
-					$content .= "\t\t" . 'The previous message was logged ' . $message['count'] . ' times.';
+					$formatted_messages .= "\t\t" . 'The previous message was logged ' . $message['count'] . ' times.';
 				}
-				$content .= PHP_EOL;
+				$formatted_messages .= PHP_EOL;
 			}
 			
 		}
 		
-		return $content;
+		return $formatted_messages;
 	}
 }
 
