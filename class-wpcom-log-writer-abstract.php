@@ -32,7 +32,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 	 * @param array $messages
 	 * @param array $log
 	 
-	 * @return null|obj $caugh_error WP_Error object (if error), or null (no error)
+	 * @return null|obj $caught_error WP_Error object (if error), or null (no error)
 	 */
 	public function process_log( $messages, $log ) {
 		$now = time();
