@@ -1,6 +1,8 @@
 <?php
 class WPCOM_Log extends WPCOM_Log_Abstract {
 
+	protected $_logger_paths = array();
+
 	/**
 	 * Stores each message and a count of how many times it was called.
 	 *
@@ -46,38 +48,64 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 		add_action( 'shutdown', array( $this, 'send_log' ) );
 	}
 	
-	public function attach_writer( $classname, $theme_name, $plugin_name ) {
+	public function register_writer( $args ) {
 
-		$is_valid_classname = (bool) preg_match( '/^([a-z_]+)$/i', $classname );
-
-		if ( ! $is_valid_classname ) {
-			return new WP_Error( 'error', esc_html( $classname ) . ' is not a valid class name.' );
+		if ( ! isset( $args['path'] ) ) {
+			return new WP_Error( 'error', '"path" cannot be empty when registering a new log writer.' );
 		}
 
-		if ( ! class_exists( $classname ) ) {
-			
-			$class_filename = 'class-' . str_replace( '_', '-', strtolower( $classname ) ) . '.php';
-			$class_path = $theme_name . DIRECTORY_SEPARATOR . $plugin_name . DIRECTORY_SEPARATOR . $class_filename;
-			$base_path = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . 'vip';
-			
-			if ( ! file_exists( $base_path . DIRECTORY_SEPARATOR . $class_path ) ) {
-				return new WP_Error( 'error', esc_html( $class_path ) . ' does not exist.' );
+		$class_path = untrailingslashit( WP_CONTENT_DIR . DIRECTORY_SEPARATOR . ltrim( $args['path'], DIRECTORY_SEPARATOR ) );
+
+		if ( ! file_exists( $class_path ) ) {
+			return new WP_Error( 'error', 'path "' . esc_html($args['path']) . '" does not exist.' );
+		}
+
+		if ( ! isset( $args['class'] ) ) {
+			return new WP_Error( 'error', '"class" cannot be empty when registering a new log writer.' );
+		}
+
+		$is_valid_class_name = $this->_is_valid_class_name( $args['class'] );
+
+		if ( ! $is_valid_class_name ) {
+			return new WP_Error( 'error', esc_html( $args['class'] ) . ' is not a valid class name.' );
+		}
+
+		$this->_logger_paths[$args['class']] = $class_path;
+
+		return $this;
+	}
+
+	protected function _is_valid_class_name( $class_name ) {
+		return (bool) preg_match( '/^([a-z_]+)$/i', $class_name );
+	}
+
+	public function attach_writer( $class_name ) {
+
+		$is_valid_class_name = $this->_is_valid_class_name( $class_name );
+
+		if ( ! $is_valid_class_name ) {
+			return new WP_Error( 'error', esc_html( $class_name ) . ' is not a valid class name.' );
+		}
+
+		if ( ! class_exists( $class_name ) ) {
+			if ( ! isset( $this->_logger_paths[$class_name] ) || ! file_exists( $this->_logger_paths[$class_name] ) ) {
+				return new WP_Error( 'error', 'No valid path to ' . esc_html( $class_name ) . '.  Please use the register_writer() method.' );
 			}
-			
-			include_once $base_path . DIRECTORY_SEPARATOR . $class_path;
+
+			require_once $this->_logger_paths[$class_name];
 
 			// Sanity check
-			if ( ! class_exists( $classname ) ) {
-				return new WP_Error( 'error', esc_html( $classname ) . ' does not exist.' );
+			if ( ! class_exists( $class_name ) ) {
+				return new WP_Error( 'error', esc_html( $class_name ) . ' does not exist.' );
 			}
 			
 		}
 
-		$writer = $classname::get_instance();
+		$writer = $class_name::get_instance();
 
 		// Sanity check
 		if ( ! is_callable( array( $writer, 'process_log' ) ) ) {
-			return new WP_Error( 'error', esc_html( $classname ) . '::process_log() is not callable.' );
+			return new WP_Error( 'error', esc_html( $class_name ) . '::process_log() is not callable.' );
 		}
 
 		add_action( 'wpcom_send_log', array( $writer, 'process_log' ), 10, 2 );
