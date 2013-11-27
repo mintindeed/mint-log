@@ -51,7 +51,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 		}
 
 		$formatted_messages = $this->_format_messages( $this->log_data['messages'], $this->log_data['log'] );
-		
+
 		$caught_error = $this->_send_log( $formatted_messages );
 		
 		wp_cache_delete( $this->_cache_key, self::CACHE_GROUP );
