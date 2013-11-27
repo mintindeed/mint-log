@@ -9,15 +9,15 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 	 * @var array $this->_messages[$message_hash] = array( 'message' => $message, 'priority' => $priority, 'count' => intval($repeats) );
 	 */
 	protected $_messages = array();
-	
+
 	/**
 	 * A log of the first occurrence of each message.
 	 * This is a multidimensional array in case of race conditions or unexpectedly fast operations.
-	 * 
+	 *
 	 * @var array $this->_log[microtime()][] = $message_hash;
 	 */
 	protected $_log = array();
-	
+
 	/**
 	 * Keeps a count of the total number of messages received.
 	 * Used to prevent log flooding.  By keeping the log and message content separate we can easily detect duplicate messages.
@@ -25,14 +25,14 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 	 * @var int
 	 */
 	protected $_message_count = 0;
-	
+
 	/**
 	 * Max number of message that may be logged
 	 *
 	 * @var int
 	 */
 	protected $_max_messages = 100;
-	
+
 	/**
 	 * Error message text
 	 */
@@ -44,10 +44,10 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 	 */
 	protected function _init() {
 		$this->_max_messages_limit_text = sprintf( $this->_max_messages_limit_text, $this->_max_messages );
-		
+
 		add_action( 'shutdown', array( $this, 'send_log' ) );
 	}
-	
+
 	public function register_writer( $args ) {
 
 		if ( ! isset( $args['path'] ) ) {
@@ -98,7 +98,7 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 			if ( ! class_exists( $class_name ) ) {
 				return new WP_Error( 'error', esc_html( $class_name ) . ' does not exist.' );
 			}
-			
+
 		}
 
 		$writer = $class_name::get_instance();
@@ -109,10 +109,10 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 		}
 
 		add_action( 'wpcom_send_log', array( $writer, 'process_log' ), 10, 2 );
-		
+
 		return $writer;
 	}
-	
+
 	/**
 	 * Add message to the log
 	 *
@@ -120,13 +120,13 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 	 * @param int $priority
 	 */
 	public function log( $message, $priority = self::INFO ) {
-	
+
 		// Don't log too much.
 		if ( $this->_message_count > $this->_max_messages ) {
 			$message = $this->_max_messages_limit_text;
 			$priority = self::WARN;
 		}
-		
+
 		// Hash using CRC32 for speed. Higher chance of digest collision than MD5, but we have a very small sample set ($this->_max_messages+1).
 		// Computed 100,000 hash calculations x 100 sets on an Intel Core i5 2.4GHz and PHP 5.3.15 to get the following average times:
 		// Average MD5: 0.058228240013123
@@ -142,14 +142,14 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 				'count' => 1,
 			);
 		}
-		
+
 		// Log the first occurrence of a message with a timestamp.
 		if ( $this->_messages[$hash]['count'] === 1 ) {
 			// When using microtime(true) as an array key, it drops the float
 			$this->_log[ (string) microtime(true) ][] = $hash;
 		}
-		
-		
+
+
 		$this->_message_count++;
 	}
 
@@ -229,7 +229,6 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 	 * Sends the log messages to any observers and flushes the log.
 	 */
 	public function send_log() {
-		
 		// Might want to optimize this by passing by reference or using a static var
 		// but if the messages are being limited to ~100 it probably doesn't matter
 		do_action( 'wpcom_send_log', $this->_messages, $this->_log );
@@ -238,7 +237,7 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 		$this->_messages = array();
 		$this->_log = array();
 	}
-	
+
 }
 
 //EOF
