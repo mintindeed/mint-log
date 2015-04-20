@@ -30,7 +30,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements W
 
 		// Attach the writer
 		$writer = $class_name::get_instance();
-		add_action( 'wpcom_send_log', array( $writer, 'process_log' ), 10, 2 );
+		add_action( 'wpcom_send_log', array( $writer, 'send_log' ), 10, 2 );
 	}
 
 	/**
@@ -40,7 +40,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements W
 
 	 * @return null|obj $caught_error WP_Error object (if error), or null (no error)
 	 */
-	public function process_log( $messages, $log ) {
+	public function send_log( $messages, $log ) {
 		$now = time();
 		$this->log_data['last_run'] = ( $this->log_data['last_run'] ) ? $this->log_data['last_run'] : $now;
 		$this->log_data['messages'] = (array) $this->log_data['messages'] + (array) $messages ;
