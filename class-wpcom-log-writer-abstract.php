@@ -46,7 +46,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 		$this->log_data['messages'] = (array) $this->log_data['messages'] + (array) $messages ;
 		$this->log_data['log'] = (array) $this->log_data['log'] + (array) $log;
 
-		// If it's not time to send the e-mail, then add to the log and bail
+		// If it's not time to send the log then add the message and bail
 		if ( $this->has_cache && $this->_throttle > ( $now - $this->log_data['last_run'] ) ) {
 			wp_cache_set( $this->_cache_key, $this->log_data, self::CACHE_GROUP );
 			return;
