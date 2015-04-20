@@ -1,5 +1,5 @@
 <?php
-abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
+abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements WPCOM_Log_Writer_Interface {
 
 	const CACHE_GROUP = 'wpcom-log';
 

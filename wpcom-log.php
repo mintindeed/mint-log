@@ -9,6 +9,7 @@
  */
 
 include __DIR__ . '/class-wpcom-log-abstract.php';
+include __DIR__ . '/class-wpcom-log-writer-interface.php';
 include __DIR__ . '/class-wpcom-log-writer-abstract.php';
 include __DIR__ . '/class-wpcom-log.php';
 
