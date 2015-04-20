@@ -3,16 +3,32 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements W
 
 	const CACHE_GROUP = 'wpcom-log';
 
+	/**
+	 * Cache key for flood protection
+	 * @var string
+	 */
 	protected $_cache_key = 'default';
 
+	/**
+	 * Holds the messages and meta data for logging
+	 * @var array
+	 */
 	protected $_default_log_data = array(
 		'last_run' => 0,
 		'messages' => array(),
 		'log' => array(),
 	);
 
+	/**
+	 * Holds the messages and meta data for logging
+	 * @var array
+	 */
 	public $log_data = array();
 
+	/**
+	 * Whether wp_cache_get() has cached data
+	 * @var bool
+	 */
 	public $has_cache = false;
 
 	/**
@@ -21,6 +37,13 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements W
 	 */
 	protected $_throttle = 60;
 
+	/**
+	 * Always call this parent method in child classes. Classes implementing
+	 * this abstract can override the _init() method. The _init() method does
+	 * three critical things: 1) Sets the cache key to something unique; 2)
+	 * Implements flood protection; 3) Attaches the log writer.
+	 * @return void
+	 */
 	protected function _init() {
 		$class_name = get_called_class();
 
@@ -28,16 +51,15 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements W
 		$cache_data = wp_cache_get( $this->_cache_key, self::CACHE_GROUP, false, $this->has_cache );
 		$this->log_data = wp_parse_args( $cache_data, $this->_default_log_data );
 
-		// Attach the writer
 		$writer = $class_name::get_instance();
 		add_action( 'wpcom_send_log', array( $writer, 'send_log' ), 10, 2 );
 	}
 
 	/**
-	 *
+	 * Processes log data and sends to the logger. You probably shouldn't
+	 * override this method, _send_log() is meant to be the method that actually * passes the log data to the logging service.
 	 * @param array $messages
 	 * @param array $log
-
 	 * @return null|obj $caught_error WP_Error object (if error), or null (no error)
 	 */
 	public function send_log( $messages, $log ) {
@@ -65,10 +87,24 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements W
 		return $caught_error;
 	}
 
+	/**
+	 * This is where you connect to the 3rd party logging service and send it
+	 * your log data.
+	 * @param string $formatted_messages
+	 * @return string|obj $caught_error WP_Error object (if error), or null (no error)
+	 */
 	protected function _send_log( $formatted_messages ) {
-		return $formatted_messages;
+		$caught_error = ( empty( $formatted_messages ) ) ? WP_Error( 'error', 'No logger implemented.' ) : null;
+		return $caught_error;
 	}
 
+	/**
+	 * Takes the raw log data and formats it. Override this if you want to
+	 * control the log format.
+	 * @param array $messages
+	 * @param array $log
+	 * @return string $formatted_messages
+	 */
 	protected function _format_messages( $messages, $log ) {
 		$formatted_messages = '';
 
