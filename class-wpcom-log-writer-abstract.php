@@ -2,36 +2,42 @@
 abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 
 	const CACHE_GROUP = 'wpcom-log';
-	
+
 	protected $_cache_key = 'default';
-	
+
 	protected $_default_log_data = array(
 		'last_run' => 0,
 		'messages' => array(),
 		'log' => array(),
 	);
-	
+
 	public $log_data = array();
-	
+
 	public $has_cache = false;
-	
+
 	/**
 	 * How many seconds between e-mails
 	 * @var int Seconds
 	 */
 	protected $_throttle = 60;
-	
+
 	protected function _init() {
-		$this->_cache_key = get_called_class();
+		$class_name = get_called_class();
+
+		$this->_cache_key = $class_name;
 		$cache_data = wp_cache_get( $this->_cache_key, self::CACHE_GROUP, false, $this->has_cache );
 		$this->log_data = wp_parse_args( $cache_data, $this->_default_log_data );
+
+		// Attach the writer
+		$writer = $class_name::get_instance();
+		add_action( 'wpcom_send_log', array( $writer, 'process_log' ), 10, 2 );
 	}
-	
+
 	/**
 	 *
 	 * @param array $messages
 	 * @param array $log
-	 
+
 	 * @return null|obj $caught_error WP_Error object (if error), or null (no error)
 	 */
 	public function process_log( $messages, $log ) {
@@ -45,7 +51,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 			wp_cache_set( $this->_cache_key, $this->log_data, self::CACHE_GROUP );
 			return;
 		}
-		
+
 		if ( ! $this->log_data['log'] ) {
 			return new WP_Error( 'error', 'No data to log' );
 		}
@@ -53,22 +59,22 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 		$formatted_messages = $this->_format_messages( $this->log_data['messages'], $this->log_data['log'] );
 
 		$caught_error = $this->_send_log( $formatted_messages );
-		
+
 		wp_cache_delete( $this->_cache_key, self::CACHE_GROUP );
-		
+
 		return $caught_error;
 	}
-	
+
 	protected function _send_log( $formatted_messages ) {
 		return $formatted_messages;
 	}
-	
+
 	protected function _format_messages( $messages, $log ) {
 		$formatted_messages = '';
 
 		foreach ( $log as $timestamp => $message_keys ) {
 			$timestamp = (float) $timestamp;
-			
+
 			foreach ( $message_keys as $message_key ) {
 				$message = $messages[ (string) $message_key ];
 				$formatted_messages .= date( 'c', $timestamp ) . "\t";
@@ -79,9 +85,9 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract {
 				}
 				$formatted_messages .= PHP_EOL;
 			}
-			
+
 		}
-		
+
 		return $formatted_messages;
 	}
 }

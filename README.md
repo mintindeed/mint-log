@@ -10,20 +10,15 @@ Example usage:
 --------------
 
 	// 1) Register your custom log writer
-	$email_writer_args = array(
-		'path' => 'themes/vip/dev/wpcom-log/class-wpcom-log-writer-email.php',
-		'class' => 'WPCOM_Log_Writer_Email',
-	);
-	WPCOM_Log::get_instance()
-	         ->register_writer( $email_writer_args );
+	require __DIR__ . '/class-wpcom-log-writer-email.php';
+	WPCOM_Log_Writer_Email::get_instance();
 
-	// 2) Before you start logging, attach any writers you want to use for logging
-	WPCOM_Log::get_instance()
-	         ->attach_writer( 'WPCOM_Log_Writer_Email' )
+	// 2) Before you start logging, do any setup your logger needs
+	WPCOM_Log_Writer_Email::get_instance()
 	         ->add_recipients( 'gkoen@pmc.com' )
 	         ->send_log_as_attachment();
 
-	// 3) Use your preferred log writer
+	// 3) Log. Use your preferred log writer
 	WPCOM_Log::get_instance()
 	         ->log( "Hello, world" );
 
