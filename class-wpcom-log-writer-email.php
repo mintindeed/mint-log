@@ -1,12 +1,6 @@
 <?php
 class WPCOM_Log_Writer_Email extends WPCOM_Log_Writer_Abstract {
 	/**
-	 * Override the default cache key
-	 * @var string
-	 */
-	protected $_cache_key = 'email';
-
-	/**
 	 * An array of e-mail addresses to send the logs to.
 	 * @var array
 	 */
@@ -29,6 +23,17 @@ class WPCOM_Log_Writer_Email extends WPCOM_Log_Writer_Abstract {
 	 * @var string
 	 */
 	protected $_attachment_name = null;
+
+	/**
+	 * Example _init() method
+	 */
+	protected function _init() {
+		// Must call the parent init method!
+		parent::_init();
+
+		// Set the default e-mail subject
+		$this->_subject = '[' . self::CACHE_GROUP .  '] ' . str_replace( array( '-', '_' ), ' ', $this->_cache_key ) . ' log';
+	}
 
 	/**
 	 * Add a single recipient
