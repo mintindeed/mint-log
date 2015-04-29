@@ -1,7 +1,7 @@
 <?php
-abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements WPCOM_Log_Writer_Interface {
+abstract class Mint_Log_Writer_Abstract extends Mint_Log_Abstract implements Mint_Log_Writer_Interface {
 
-	const CACHE_GROUP = 'wpcom-log';
+	const CACHE_GROUP = 'mint-log';
 
 	/**
 	 * Cache key for flood protection
@@ -52,7 +52,7 @@ abstract class WPCOM_Log_Writer_Abstract extends WPCOM_Log_Abstract implements W
 		$this->log_data = wp_parse_args( $cache_data, $this->_default_log_data );
 
 		$writer = $class_name::get_instance();
-		add_action( 'wpcom_send_log', array( $writer, 'send_log' ), 10, 2 );
+		add_action( 'mint_send_log', array( $writer, 'send_log' ), 10, 2 );
 	}
 
 	/**

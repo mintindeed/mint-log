@@ -1,4 +1,4 @@
-WordPress.com Remote Logging
+Mint Remote Logging
 ============================
 Extensible logging to remote providers
 
@@ -10,16 +10,16 @@ Example usage:
 --------------
 
 	// 1) Register your custom log writer
-	require __DIR__ . '/class-wpcom-log-writer-email.php';
-	WPCOM_Log_Writer_Email::get_instance();
+	require __DIR__ . '/class-mint-log-writer-email.php';
+	Mint_Log_Writer_Email::get_instance();
 
 	// 2) Before you start logging, do any setup your logger needs
-	WPCOM_Log_Writer_Email::get_instance()
+	Mint_Log_Writer_Email::get_instance()
 	         ->add_recipients( 'gkoen@pmc.com' )
 	         ->send_log_as_attachment();
 
 	// 3) Log. Use your preferred log writer
-	WPCOM_Log::get_instance()
+	Mint_Log::get_instance()
 	         ->log( "Hello, world" );
 
 Notes

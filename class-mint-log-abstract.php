@@ -3,7 +3,7 @@
  * Methods, constants, and variables common to loggers and writers,
  * and Singleton boilerplate.
  */
-abstract class WPCOM_Log_Abstract {
+abstract class Mint_Log_Abstract {
 
 	/**
 	 * Emergency: system is unusable

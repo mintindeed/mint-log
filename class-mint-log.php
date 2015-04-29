@@ -1,5 +1,5 @@
 <?php
-class WPCOM_Log extends WPCOM_Log_Abstract {
+class Mint_Log extends Mint_Log_Abstract {
 
 	protected $_logger_paths = array();
 
@@ -166,9 +166,9 @@ class WPCOM_Log extends WPCOM_Log_Abstract {
 	public function send_log() {
 		// Might want to optimize this by passing by reference or using a static var
 		// but if the messages are being limited to ~100 it probably doesn't matter
-		do_action( 'wpcom_send_log', $this->_messages, $this->_log );
+		do_action( 'mint_send_log', $this->_messages, $this->_log );
 
-		// Flush the in-memory log.  Log writers extending WPCOM_Log_Writer_Abstract will cache and throttle log messages.
+		// Flush the in-memory log.  Log writers extending Mint_Log_Writer_Abstract will cache and throttle log messages.
 		$this->_messages = array();
 		$this->_log = array();
 	}
