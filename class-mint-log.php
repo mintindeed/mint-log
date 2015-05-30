@@ -86,6 +86,8 @@ class Mint_Log extends Mint_Log_Abstract {
 
 
 		$this->_message_count++;
+
+		return $this;
 	}
 
 	/**
