@@ -27,6 +27,7 @@ Notes
 
 Cloud logging providers:
 
+* https://logentries.com/
 * http://www.loggly.com/
 * http://www.sumologic.com/
 * https://airbrake.io/
